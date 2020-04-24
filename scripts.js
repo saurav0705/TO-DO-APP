@@ -1,6 +1,6 @@
 console.log('attached')
 
-
+var id = 1;
 
 var Blog = Backbone.Model.extend({
     defaults:{
@@ -11,8 +11,9 @@ var Blog = Backbone.Model.extend({
 
 });
 let createobj = (task,priority,added) => {
+    id=id+1;
     return new Blog({
-        "task":task,"priority":priority,"added":added
+        id:id-1,"task":task,"priority":priority,"added":added
     })
 }
 
@@ -27,8 +28,14 @@ let add_to_collection = (obj) =>  allblogs.add(obj);
 
 let ElementView = Backbone.View.extend({
     tagName:"li",
+    events:{
+        "click":"delete"
+    },
+    delete: function(){
+        removeTask(this.model.get('id'))
+    },
     render : function() {
-        this.$el.html(this.model.get('task'));
+        this.$el.html(this.model.get('task') +'<button>delete</button>');
         return this;
     }
 });
@@ -46,10 +53,24 @@ let ListView = Backbone.View.extend({
 })
 
 let test_collection = new BlogCollection([
-    createobj('task1',3,'high'),
-    createobj('task2',4,'low'),
-    createobj('task3',5,'mid'),
-    createobj('task4',36,'high')
 ])
- let mode_1 = new Blog(createobj('new',1,'high'));
+
 var view = new ListView({el : "#test", model : test_collection});
+
+
+const addTask = (task,priority,added) => {
+    test_collection.add(createobj(task,priority,added));
+    view.render();
+}
+
+const removeTask = (id) => {
+    test_collection.remove(id);
+    view.render();
+}
+
+const fromui = () =>{
+    console.log(document.getElementById("task").value);
+    addTask(document.getElementById("task").value,"low",new Date());
+}
+
+
