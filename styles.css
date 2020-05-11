@@ -1,0 +1,17 @@
+.comments{
+    text-align: left;
+    font-size: 32px;
+    text-transform: uppercase;
+    padding: 10px;
+    background-color: aqua;
+}
+
+.hidden{
+    display: none;
+}
+
+.commentList{
+   
+    padding-left: 10vw;
+}
+

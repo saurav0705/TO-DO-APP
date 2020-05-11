@@ -1,76 +1,73 @@
-console.log('attached')
+var structure = {"post":"something",comments:[]};
+if(localStorage.getItem('structure')){
+    structure = JSON.parse(localStorage.getItem('structure'));
+}
+function showAll(id){
+    let element = document.getElementById(id).getElementsByClassName("commentList")[0].getElementsByClassName("comments");
+    console.log(element);
+    for(let i=2;i<element.length;i++){
+        element[i].classList.remove("hidden")
+    }
+}
 
-var id = 1;
 
-var Blog = Backbone.Model.extend({
-    defaults:{
-        task:'',
-        priority:'low',
-        added : ''
+function giveId(){
+    
+    let id = parseInt(Math.random()*10000);
+    let val = document.getElementById(id);
+    if (val === null){
+    return id;}else{
+        giveId();
     }
 
-});
-let createobj = (task,priority,added) => {
-    id=id+1;
-    return new Blog({
-        id:id-1,"task":task,"priority":priority,"added":added
+}
+
+function addComment(id){
+    let hidden = false;
+    let root = document.getElementById(id)
+    let input = root.getElementsByTagName("input")[0].value.trim();
+    
+    if(input.length !==0){
+    let commentList =root.getElementsByClassName("commentList");
+    if(commentList.length > 2){
+        hidden = true;
+    }
+    commentList[0].appendChild(createCommentBox(input,hidden));
+    if(commentList.length === 2){
+        let showButton = createComponents("button",{onclick:`showAll(${id})`});
+        let commentNode = document.createTextNode("Show All");
+        showButton.appendChild(commentNode);
+        root.appendChild(showButton)
+    } }
+}
+
+
+function createCommentBox(text,hidden){
+    let id = giveId();
+    let root = createComponents("div",{class:hidden ? "comments hidden":"comments",id:id})
+    let add = createComponents("div",{class:"add"})
+    let input = createComponents("input",{type:"text"})
+    let button = createComponents("button",{onclick:`addComment(${id})`})
+    let list = createComponents("div", {class:"commentList"});
+    let commentNode = document.createTextNode("comment");
+    button.appendChild(commentNode);
+    let textNode = document.createTextNode(text);
+    add.appendChild(input);
+    add.appendChild(button);
+    root.appendChild(textNode);
+    root.appendChild(add);
+    root.appendChild(list);
+    
+    return root;
+    
+
+
+}
+
+function createComponents(value,attr){
+    let element = document.createElement(value);
+    Object.keys(attr).forEach(at => {
+        element.setAttribute(at,attr[at])
     })
+    return element;
 }
-
-var BlogCollection = Backbone.Collection.extend({
-    model : Blog
-});
-
-var allblogs = new BlogCollection();
-
-let add_to_collection = (obj) =>  allblogs.add(obj);
-
-
-let ElementView = Backbone.View.extend({
-    tagName:"li",
-    events:{
-        "click":"delete"
-    },
-    delete: function(){
-        removeTask(this.model.get('id'))
-    },
-    render : function() {
-        this.$el.html(this.model.get('task') +'<button>delete</button>');
-        return this;
-    }
-});
-
-let ListView = Backbone.View.extend({
-    render:function(){
-        this.$el.empty()
-        let self = this;
-        this.model.each(task => {
-            var element = new ElementView({model:task})
-            self.$el.append(element.render().$el)
-        })
-    }
-
-})
-
-let test_collection = new BlogCollection([
-])
-
-var view = new ListView({el : "#test", model : test_collection});
-
-
-const addTask = (task,priority,added) => {
-    test_collection.add(createobj(task,priority,added));
-    view.render();
-}
-
-const removeTask = (id) => {
-    test_collection.remove(id);
-    view.render();
-}
-
-const fromui = () =>{
-    console.log(document.getElementById("task").value);
-    addTask(document.getElementById("task").value,"low",new Date());
-}
-
-
